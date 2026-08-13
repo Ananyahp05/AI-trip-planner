@@ -89,18 +89,29 @@ export const generateTripPlan = async (preferences) => {
     Ensure the JSON is valid and does not contain any markdown formatting. Make sure latitude and longitude values are accurate real numerical values for the places, cities, and stops mentioned.
   `;
 
-  try {
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text();
+  const candidateModels = ["gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-flash-latest"];
+  let lastError = null;
 
-    // Clean up markdown code blocks if present
-    const cleanText = text.replace(/```json/g, "").replace(/```/g, "").trim();
+  for (const modelName of candidateModels) {
+    try {
+      const model = genAI.getGenerativeModel({ model: modelName });
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      const text = response.text();
 
-    return JSON.parse(cleanText);
-  } catch (error) {
-    console.error("Error generating trip plan:", error);
-    throw error;
+      // Clean up markdown code blocks if present
+      const cleanText = text.replace(/```json/g, "").replace(/```/g, "").trim();
+      return JSON.parse(cleanText);
+    } catch (error) {
+      console.error(`Error with model ${modelName}:`, error);
+      lastError = error;
+      // If error indicates a leaked/invalid API key, fail fast instead of trying other models
+      if (error.message?.includes("reported as leaked") || error.status === 403) {
+        throw new Error("Your Gemini API key was reported as leaked or disabled by Google. Please replace VITE_GEMINI_API_KEY in your .env file with a new API key from Google AI Studio.");
+      }
+    }
   }
+
+  throw lastError || new Error("Failed to generate trip plan with available Gemini models.");
 };
 

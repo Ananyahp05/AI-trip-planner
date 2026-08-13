@@ -15,6 +15,9 @@ import SavedTripsPage from './pages/SavedTripsPage';
 function App() {
   return (
     <Routes>
+      {/* Root route redirects to Auth page */}
+      <Route path="/" element={<Navigate to="/auth" replace />} />
+
       {/* Public Sign In / Sign Up Route */}
       <Route path="/auth" element={<AuthPage />} />
 
@@ -25,7 +28,6 @@ function App() {
 
         {/* Dashboard Pages Layout (with Sidebar Navigation) */}
         <Route element={<DashboardLayout />}>
-          <Route path="/" element={<Navigate to="/plan" replace />} />
           <Route path="/itinerary" element={<ItineraryPage />} />
           <Route path="/map" element={<MapPage />} />
           <Route path="/packing" element={<PackingPage />} />

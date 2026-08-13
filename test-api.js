@@ -7,8 +7,9 @@ const API_KEY = process.env.VITE_GEMINI_API_KEY;
 const genAI = new GoogleGenerativeAI(API_KEY);
 
 const modelsToTest = [
-    "gemini-1.5-flash",
-    "gemini-pro"
+    "gemini-2.5-flash",
+    "gemini-2.5-flash-lite",
+    "gemini-flash-latest"
 ];
 
 async function testModels() {
