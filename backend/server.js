@@ -1,9 +1,11 @@
+// Restart triggered
 const express = require('express');
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
+const emailValidator = require('deep-email-validator');
 require('dotenv').config();
 const db = require('./db');
 
@@ -44,6 +46,20 @@ app.post('/api/register', async (req, res) => {
     const [existingUsers] = await db.query('SELECT * FROM users WHERE email = ?', [cleanEmail]);
     if (existingUsers.length > 0) {
       return res.status(400).json({ error: "An account with this email already exists." });
+    }
+
+    // Validate email existence using deep-email-validator
+    const { valid, reason, validators } = await emailValidator.validate({
+      email: cleanEmail,
+      validateRegex: true,
+      validateMx: true,
+      validateTypo: true,
+      validateDisposable: true,
+      validateSMTP: false // Disabled because ISPs often block port 25 locally, causing real emails to fail
+    });
+    
+    if (!valid) {
+      return res.status(400).json({ error: "Please provide a valid, active email address." });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -118,6 +134,77 @@ app.get('/api/verify-email', async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).send("Server error during verification.");
+  }
+});
+
+// FORGOT PASSWORD
+app.post('/api/forgot-password', async (req, res) => {
+  const { email } = req.body;
+  const cleanEmail = email.trim().toLowerCase();
+
+  try {
+    const [users] = await db.query('SELECT * FROM users WHERE email = ?', [cleanEmail]);
+    if (users.length === 0) {
+      return res.status(400).json({ error: "No account found with this email." });
+    }
+
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const resetExpires = Date.now() + 3600000; // 1 hour
+
+    await db.query('UPDATE users SET resetPasswordToken = ?, resetPasswordExpires = ? WHERE email = ?', [resetToken, resetExpires, cleanEmail]);
+
+    if (process.env.EMAIL_USER) {
+      // Use origin header to link back to the frontend app
+      const frontendUrl = req.headers.origin || 'http://localhost:5173';
+      const resetLink = `${frontendUrl}/reset-password?token=${resetToken}`;
+      
+      const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: cleanEmail,
+        subject: 'Password Reset - AI Trip Planner',
+        html: `
+          <h2>Password Reset Request</h2>
+          <p>You requested a password reset. Click the link below to set a new password:</p>
+          <a href="${resetLink}">Reset Password</a>
+          <p>If you didn't request this, you can safely ignore this email.</p>
+        `
+      };
+
+      transporter.sendMail(mailOptions, (error) => {
+        if (error) {
+          console.error("Failed to send reset email:", error);
+          return res.status(500).json({ error: "Failed to send reset email." });
+        }
+        res.json({ message: "Password reset link sent to your email." });
+      });
+    } else {
+      res.status(500).json({ error: "Email service not configured. Cannot send reset link." });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Server error during forgot password." });
+  }
+});
+
+// RESET PASSWORD
+app.post('/api/reset-password', async (req, res) => {
+  const { token, newPassword } = req.body;
+
+  try {
+    const [users] = await db.query('SELECT * FROM users WHERE resetPasswordToken = ? AND resetPasswordExpires > ?', [token, Date.now()]);
+    
+    if (users.length === 0) {
+      return res.status(400).json({ error: "Password reset token is invalid or has expired." });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    await db.query('UPDATE users SET password = ?, resetPasswordToken = NULL, resetPasswordExpires = NULL WHERE id = ?', [hashedPassword, users[0].id]);
+
+    res.json({ message: "Password has been successfully reset! You can now log in." });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Server error during password reset." });
   }
 });
 

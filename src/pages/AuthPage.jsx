@@ -35,8 +35,13 @@ const AuthPage = () => {
 
       try {
         const result = await signUp(name, email, password);
-        alert(result.message);
-        setIsSignUp(false); // Switch to login screen after successful signup
+        if (result.token) {
+          // Auto logged in because email verification is disabled
+          navigate('/plan');
+        } else {
+          alert(result.message);
+          setIsSignUp(false); // Switch to login screen after successful signup
+        }
       } catch (err) {
         setError(err.message);
       }
@@ -151,9 +156,16 @@ const AuthPage = () => {
           </div>
 
           <div className="space-y-1">
-            <label className="text-xs font-semibold text-amber-100 uppercase tracking-wider flex items-center gap-1.5">
-              <Lock className="w-3.5 h-3.5" /> Password
-            </label>
+            <div className="flex justify-between items-center">
+              <label className="text-xs font-semibold text-amber-100 uppercase tracking-wider flex items-center gap-1.5">
+                <Lock className="w-3.5 h-3.5" /> Password
+              </label>
+              {!isSignUp && (
+                <button type="button" onClick={() => navigate('/forgot-password')} className="text-xs text-amber-300 hover:text-amber-100 transition-colors">
+                  Forgot Password?
+                </button>
+              )}
+            </div>
             <input
               type="password"
               required

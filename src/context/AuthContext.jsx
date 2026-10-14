@@ -43,6 +43,12 @@ export const AuthProvider = ({ children }) => {
     if (!response.ok) {
       throw new Error(data.error || 'Failed to sign up');
     }
+    
+    // Auto-login if backend returns a token (email verification disabled)
+    if (data.token && data.user) {
+      saveUserSession({ ...data.user, token: data.token });
+    }
+    
     return data;
   };
 

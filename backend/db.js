@@ -7,6 +7,8 @@ const pool = mysql.createPool({
   user: process.env.DB_USER || 'root',
   password: process.env.DB_PASSWORD || '',
   database: process.env.DB_NAME || 'ai_trip_planner_db',
+  port: process.env.DB_PORT || 3306,
+  ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: true } : undefined,
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0
@@ -19,7 +21,9 @@ async function setupDatabase() {
     const connection = await mysql.createConnection({
       host: process.env.DB_HOST || 'localhost',
       user: process.env.DB_USER || 'root',
-      password: process.env.DB_PASSWORD || ''
+      password: process.env.DB_PASSWORD || '',
+      port: process.env.DB_PORT || 3306,
+      ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: true } : undefined
     });
 
     await connection.query(`CREATE DATABASE IF NOT EXISTS \`${process.env.DB_NAME || 'ai_trip_planner_db'}\`;`);
@@ -35,6 +39,8 @@ async function setupDatabase() {
         avatar VARCHAR(255),
         isVerified BOOLEAN DEFAULT false,
         verificationToken VARCHAR(255),
+        resetPasswordToken VARCHAR(255),
+        resetPasswordExpires BIGINT,
         createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `;
@@ -51,6 +57,15 @@ async function setupDatabase() {
 
     await pool.query(createUsersTable);
     await pool.query(createTripsTable);
+    
+    // Check if columns exist, if not add them (for existing db)
+    try {
+      await pool.query('ALTER TABLE users ADD COLUMN resetPasswordToken VARCHAR(255)');
+      await pool.query('ALTER TABLE users ADD COLUMN resetPasswordExpires BIGINT');
+    } catch (e) {
+      // Columns likely already exist, which is fine
+    }
+    
     console.log("✅ Database and tables are ready!");
 
   } catch (error) {
