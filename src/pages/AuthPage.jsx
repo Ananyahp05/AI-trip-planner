@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Plane, Lock, Mail, User, ArrowRight, ShieldCheck, UserPlus, LogIn, AlertCircle } from 'lucide-react';
+import { Plane, Lock, Mail, User, ArrowRight, ShieldCheck, UserPlus, LogIn, AlertCircle, Eye, EyeOff } from 'lucide-react';
 
 const AuthPage = () => {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -9,6 +9,8 @@ const AuthPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState(null);
 
   const { signIn, signUp } = useAuth();
@@ -35,8 +37,13 @@ const AuthPage = () => {
 
       try {
         const result = await signUp(name, email, password);
-        alert(result.message);
-        setIsSignUp(false); // Switch to login screen after successful signup
+        if (result.token) {
+          // Auto logged in because email verification is disabled
+          navigate('/plan');
+        } else {
+          alert(result.message);
+          setIsSignUp(false); // Switch to login screen after successful signup
+        }
       } catch (err) {
         setError(err.message);
       }
@@ -151,17 +158,34 @@ const AuthPage = () => {
           </div>
 
           <div className="space-y-1">
-            <label className="text-xs font-semibold text-amber-100 uppercase tracking-wider flex items-center gap-1.5">
-              <Lock className="w-3.5 h-3.5" /> Password
-            </label>
-            <input
-              type="password"
-              required
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 bg-white/15 border border-white/20 rounded-xl text-white placeholder-amber-100/50 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:bg-white/25 transition-all text-sm"
-            />
+            <div className="flex justify-between items-center">
+              <label className="text-xs font-semibold text-amber-100 uppercase tracking-wider flex items-center gap-1.5">
+                <Lock className="w-3.5 h-3.5" /> Password
+              </label>
+              {!isSignUp && (
+                <button type="button" onClick={() => navigate('/forgot-password')} className="text-xs text-amber-300 hover:text-amber-100 transition-colors">
+                  Forgot Password?
+                </button>
+              )}
+            </div>
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                required
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-4 py-3 pr-11 bg-white/15 border border-white/20 rounded-xl text-white placeholder-amber-100/50 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:bg-white/25 transition-all text-sm"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-amber-100/70 hover:text-white transition-colors p-1"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
           </div>
 
           {isSignUp && (
@@ -169,14 +193,24 @@ const AuthPage = () => {
               <label className="text-xs font-semibold text-amber-100 uppercase tracking-wider flex items-center gap-1.5">
                 <Lock className="w-3.5 h-3.5" /> Confirm Password
               </label>
-              <input
-                type="password"
-                required
-                placeholder="••••••••"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full px-4 py-3 bg-white/15 border border-white/20 rounded-xl text-white placeholder-amber-100/50 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:bg-white/25 transition-all text-sm"
-              />
+              <div className="relative">
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  required
+                  placeholder="••••••••"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="w-full px-4 py-3 pr-11 bg-white/15 border border-white/20 rounded-xl text-white placeholder-amber-100/50 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:bg-white/25 transition-all text-sm"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-amber-100/70 hover:text-white transition-colors p-1"
+                  aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                >
+                  {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
             </div>
           )}
 
