@@ -1,5 +1,5 @@
-Testing gemini-2.5-flash...
-SUCCESS: gemini-2.5-flash works!
+Testing gemini-3.5-flash...
+SUCCESS: gemini-3.5-flash works!
 {
   "response": {
     "candidates": [
@@ -7,7 +7,8 @@ SUCCESS: gemini-2.5-flash works!
         "content": {
           "parts": [
             {
-              "text": "Hello! How can I help you today?"
+              "text": "Hello! How can I help you today?",
+              "thoughtSignature": "EtYFCtMFAWkUfROxyflttjhVf/693Le9HgPAk1JRKmidkORYzv8JAqlP3B0IZuLNCD6oZ2mc5xUM6vgtNUmURjad6zdsgepgcRf1xIB8Cng7aavfBTPQ19IuZjYW2KWulusscKlstttqb56myuW5Q2YvtZRcMUKBwkVoqE+Tjq9FKt5kCxD0uPN+hZwbxmVOYehlbWAsyJe3hYwQK1aD39YlcnEuHWc62/JbmYA/d/c+yL9QQUAt8wk7tygDFnrp9CrC2xRhrXkmVp7RdaILBdL7nzCrGQgnFQNuP4+ghuoHUChh1ym37MegZoWthA6c0f020cub6i9JQ8I10ZknOrdPDsxysEIBzeMmMgwCjJ5uasYsuMY5S44Z4RlfP+Vv1j+Gq7z5UNqyS0ElhR5Nk2qBaGMGdEj2eTeOzHrAbLRmsV7iOWisCY3Aq9EyoIDy+oWJuzfErwTExM8Dum/9OMf2UWYhPCR4+aiLeZtNNx0WoP0HTRrPhgpbF/AmvS896qX/wW8E3FhDy9oNa5wGVwRX9XSvHyZVWO8NdLhEDUanV6p6U2J0biujo4HbSdyoRCguH9jnmdfQ7qK3cChaORtzuNYYGe2fo8tobIrTem0iSpC4gy8RsbS7FHU+imgXNj10YVuXm55PQyX7F8YHV06Mjzd1eVQ4CJpOMaqkeIF9fwYOsrJjkdKDU9dWo+M/ZDRQrXsboHh/Gq7DKyQ670XeKSGrpRcJUvxfu9M8SSUYx4NOFgKUIMuPyy3+Za8cR5FsbOtTU8I5kFJC5ZPNZOae4x76YpGATjha9Z++eA+tI36cnXcqgDT656IB/Fwx1+xKXOHlpDVFo1DKo5mefSYeTE6cT8AUZjZ/GHbXVO27jlg1FhQcAFenYHx7fxrVJunnv2pGSQxg0xGNevVTPOazLM+gcs4fs7dSjUkiRo976MKD95I+1p5sE+ErLTTBna8Bi1R81KrY"
             }
           ],
           "role": "model"
@@ -19,17 +20,17 @@ SUCCESS: gemini-2.5-flash works!
     "usageMetadata": {
       "promptTokenCount": 2,
       "candidatesTokenCount": 9,
-      "totalTokenCount": 401,
+      "totalTokenCount": 193,
       "promptTokensDetails": [
         {
           "modality": "TEXT",
           "tokenCount": 2
         }
       ],
-      "thoughtsTokenCount": 390,
+      "thoughtsTokenCount": 182,
       "serviceTier": "standard"
     },
-    "modelVersion": "gemini-2.5-flash",
-    "responseId": "kSZ7aqu-HeGVjuMP5Pn7uA8"
+    "modelVersion": "gemini-3.6-flash",
+    "responseId": "B97QarG1Jdulg8UP47vRwQU"
   }
 }

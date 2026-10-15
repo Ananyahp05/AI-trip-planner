@@ -9,8 +9,6 @@ export const generateTripPlan = async (preferences) => {
     throw new Error("Gemini API Key is missing. Please set VITE_GEMINI_API_KEY in your .env file.");
   }
 
-  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
-
   const prompt = `
     Generate a detailed trip plan for a trip from ${preferences.origin} to ${preferences.destination} from ${preferences.startDate} to ${preferences.endDate}.
     Budget: ${preferences.budget}.
@@ -89,7 +87,12 @@ export const generateTripPlan = async (preferences) => {
     Ensure the JSON is valid and does not contain any markdown formatting. Make sure latitude and longitude values are accurate real numerical values for the places, cities, and stops mentioned.
   `;
 
-  const candidateModels = ["gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-flash-latest"];
+  const candidateModels = [
+    "gemini-3.5-flash",
+    "gemini-3.5-flash-lite",
+    "gemini-2.5-flash",
+    "gemini-flash-latest"
+  ];
   let lastError = null;
 
   for (const modelName of candidateModels) {

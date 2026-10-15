@@ -7,21 +7,60 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
+# Dependencies
+node_modules/
+*/node_modules/
 
-# Editor directories and files
+# Production and Build outputs
+dist/
+dist-ssr/
+build/
+*.local
+*.tsbuildinfo
+
+# Cache
+.vite/
+.cache/
+
+# Environment & Secret files
+.env
+.env.*
+!.env.example
+backend/.env
+backend/.env.*
+
+# Database & SQLite files
+*.sqlite
+*.sqlite3
+*.db
+*.db-journal
+
+# Testing & Coverage
+coverage/
+.nyc_output/
+
+# Editor & IDE files
 .vscode/*
 !.vscode/extensions.json
-.idea
-.DS_Store
+.idea/
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+*.sublime-workspace
+*.sublime-project
 
-.env
-/node_modules
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Android / Mobile artifacts (if kept locally)
+TripPlanner/
+android/
+.gradle/
+local.properties
