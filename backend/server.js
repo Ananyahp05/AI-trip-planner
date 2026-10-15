@@ -39,6 +39,9 @@ const transporter = nodemailer.createTransport({
 // REGISTER a new user
 app.post('/api/register', async (req, res) => {
   const { name, email, password } = req.body;
+  if (!name || !email || !password) {
+    return res.status(400).json({ error: "Name, email, and password are all required." });
+  }
   const cleanEmail = email.trim().toLowerCase();
 
   try {
