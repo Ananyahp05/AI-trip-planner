@@ -1,17 +1,18 @@
 const mysql = require('mysql2/promise');
 require('dotenv').config();
 
-// Create a connection pool instead of a single connection
 const pool = mysql.createPool({
   host: process.env.DB_HOST || 'localhost',
   user: process.env.DB_USER || 'root',
   password: process.env.DB_PASSWORD || '',
   database: process.env.DB_NAME || 'ai_trip_planner_db',
-  port: process.env.DB_PORT || 3306,
+  port: Number(process.env.DB_PORT) || 3306,
   ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: true } : undefined,
   waitForConnections: true,
   connectionLimit: 10,
-  queueLimit: 0
+  queueLimit: 0,
+  enableKeepAlive: true,
+  keepAliveInitialDelay: 10000
 });
 
 // Setup database and tables automatically
@@ -22,7 +23,7 @@ async function setupDatabase() {
       host: process.env.DB_HOST || 'localhost',
       user: process.env.DB_USER || 'root',
       password: process.env.DB_PASSWORD || '',
-      port: process.env.DB_PORT || 3306,
+      port: Number(process.env.DB_PORT) || 3306,
       ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: true } : undefined
     });
 

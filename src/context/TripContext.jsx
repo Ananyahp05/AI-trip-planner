@@ -3,7 +3,7 @@ import { generateTripPlan } from '../services/gemini';
 import { useAuth } from './AuthContext';
 
 const ACTIVE_TRIP_KEY_BASE = 'ai_trip_planner_active_trip';
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000').replace(/\/+$/, '');
 
 const TripContext = createContext();
 

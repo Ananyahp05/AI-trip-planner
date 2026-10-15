@@ -15,7 +15,7 @@ const app = express();
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
-  
+
   if (!token) return res.status(401).json({ error: "Access denied. No token provided." });
 
   jwt.verify(token, process.env.JWT_SECRET || 'super_secret_key_change_me_in_production', (err, user) => {
@@ -24,6 +24,10 @@ const authenticateToken = (req, res, next) => {
     next();
   });
 };
+app.use((req, res, next) => {
+  req.url = req.url.replace(/\/{2,}/g, '/');
+  next();
+});
 app.use(cors());
 app.use(express.json());
 
@@ -60,7 +64,7 @@ app.post('/api/register', async (req, res) => {
       validateDisposable: true,
       validateSMTP: false // Disabled because ISPs often block port 25 locally, causing real emails to fail
     });
-    
+
     if (!valid) {
       return res.status(400).json({ error: "Please provide a valid, active email address." });
     }
@@ -81,7 +85,7 @@ app.post('/api/register', async (req, res) => {
     if (emailConfigured) {
       // Send verification email
       const verificationLink = `${req.protocol}://${req.get('host')}/api/verify-email?token=${verificationToken}&email=${cleanEmail}`;
-      
+
       const mailOptions = {
         from: process.env.EMAIL_USER,
         to: cleanEmail,
@@ -107,7 +111,7 @@ app.post('/api/register', async (req, res) => {
         process.env.JWT_SECRET || 'super_secret_key_change_me_in_production',
         { expiresIn: '7d' }
       );
-      return res.status(201).json({ 
+      return res.status(201).json({
         message: "Account created successfully!",
         user: { id: userId, name: name.trim() || cleanEmail.split('@')[0], email: cleanEmail, avatar },
         token: token
@@ -126,13 +130,13 @@ app.get('/api/verify-email', async (req, res) => {
 
   try {
     const [users] = await db.query('SELECT * FROM users WHERE email = ? AND verificationToken = ?', [email, token]);
-    
+
     if (users.length === 0) {
       return res.status(400).send("Invalid or expired verification link.");
     }
 
     await db.query('UPDATE users SET isVerified = true, verificationToken = NULL WHERE email = ?', [email]);
-    
+
     res.send("<h1>Email Verified Successfully!</h1><p>You can now go back to the app and log in.</p>");
   } catch (error) {
     console.error(error);
@@ -160,7 +164,7 @@ app.post('/api/forgot-password', async (req, res) => {
       // Use origin header to link back to the frontend app
       const frontendUrl = req.headers.origin || 'http://localhost:5173';
       const resetLink = `${frontendUrl}/reset-password?token=${resetToken}`;
-      
+
       const mailOptions = {
         from: process.env.EMAIL_USER,
         to: cleanEmail,
@@ -195,7 +199,7 @@ app.post('/api/reset-password', async (req, res) => {
 
   try {
     const [users] = await db.query('SELECT * FROM users WHERE resetPasswordToken = ? AND resetPasswordExpires > ?', [token, Date.now()]);
-    
+
     if (users.length === 0) {
       return res.status(400).json({ error: "Password reset token is invalid or has expired." });
     }
@@ -278,7 +282,7 @@ app.get('/api/trips/:userId', authenticateToken, async (req, res) => {
 // Save new trip (Secured)
 app.post('/api/trips', authenticateToken, async (req, res) => {
   const { id, userId, data } = req.body;
-  
+
   if (req.user.id !== userId) {
     return res.status(403).json({ error: "Unauthorized. Cannot save trip for another user." });
   }

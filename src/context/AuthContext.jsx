@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const USER_SESSION_KEY = 'ai_trip_planner_user';
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000').replace(/\/+$/, '');
 
 const AuthContext = createContext();
 
@@ -43,12 +43,12 @@ export const AuthProvider = ({ children }) => {
     if (!response.ok) {
       throw new Error(data.error || 'Failed to sign up');
     }
-    
+
     // Auto-login if backend returns a token (email verification disabled)
     if (data.token && data.user) {
       saveUserSession({ ...data.user, token: data.token });
     }
-    
+
     return data;
   };
 
